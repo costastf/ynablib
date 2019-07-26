@@ -5,9 +5,9 @@ Credits
 Development Lead
 ----------------
 
-* Costas Tyfoxylos <costas.tyf@gmail.com>
+* Gary Hawker <dogfish@gmail.com>
 
 Contributors
 ------------
 
-None yet. Why not be the first?
+* Costas Tyfoxylos <costas.tyf@gmail.com>
