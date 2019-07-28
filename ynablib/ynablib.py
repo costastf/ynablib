@@ -35,7 +35,7 @@ import logging
 
 from requests import Session
 
-from .ynablibexceptions import InvalidBudget
+from .ynablibexceptions import InvalidBudget, AuthenticationFailed
 
 __author__ = '''Gary Hawker <dogfish@gmail.com>'''
 __docformat__ = '''google'''
@@ -58,8 +58,7 @@ class Ynab:
     """Models the ynab service."""
 
     def __init__(self, token, url='https://api.youneedabudget.com'):
-        logger_name = f'{LOGGER_BASENAME}.{self.__class__.__name__}'
-        self._logger = logging.getLogger(logger_name)
+        self._logger = logging.getLogger(f'{LOGGER_BASENAME}.{self.__class__.__name__}')
         self._api_version = 'v1'
         self._base_url = url
         self._budgets = None
@@ -72,7 +71,8 @@ class Ynab:
         headers = {'Authorization': f'Bearer {token}'}
         session.headers.update(headers)
         response = session.get(budget_url)
-        response.raise_for_status()
+        if not response.ok:
+            raise AuthenticationFailed(response.text)
         return session
 
     @property
@@ -81,7 +81,9 @@ class Ynab:
         if self._budgets is None:
             budget_url = f'{self.api_url}/budgets'
             response = self.session.get(budget_url)
-            response.raise_for_status()
+            if not response.ok:
+                self._logger.warning('Error retrieving budgets')
+                return []
             self._budgets = [Budget(self, budget)
                              for budget in response.json().get('data', {}).get('budgets', [])]
         return self._budgets
@@ -134,6 +136,8 @@ class Ynab:
             self._logger.error('Unsuccessful attempt to upload to budget "%s", response was %s',
                                budget_id,
                                response.text)
+        else:
+            self._logger.info('Successfully uploaded %s transactions to budget "%s"', len(payloads), budget_id)
         return response.ok
 
     def refresh(self):
@@ -147,6 +151,7 @@ class Budget:
     """Models the YNAB budget object."""
 
     def __init__(self, ynab, data):
+        self._logger = logging.getLogger(f'{LOGGER_BASENAME}.{self.__class__.__name__}')
         self._data = data
         self._ynab = ynab
         self._accounts = None
@@ -192,7 +197,9 @@ class Budget:
         if self._accounts is None:
             url = f'{self._ynab.api_url}/budgets/{self.id}/accounts'
             response = self._ynab.session.get(url)
-            response.raise_for_status()
+            if not response.ok:
+                self._logger.warning('Error retrieving accounts')
+                return []
             self._accounts = [Account(self, account)
                               for account in response.json().get('data', {}).get('accounts', [])]
         return self._accounts

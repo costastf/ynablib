@@ -33,7 +33,7 @@ Import all parts from ynablib here
 """
 from ._version import __version__
 from .ynablib import Ynab
-from .ynablibexceptions import InvalidBudget, InvalidAccount
+from .ynablibexceptions import InvalidBudget, InvalidAccount, AuthenticationFailed
 
 __author__ = '''Costas Tyfoxylos <costas.tyf@gmail.com>'''
 __docformat__ = '''google'''
@@ -49,3 +49,4 @@ assert __version__
 assert Ynab
 assert InvalidBudget
 assert InvalidAccount
+assert AuthenticationFailed
