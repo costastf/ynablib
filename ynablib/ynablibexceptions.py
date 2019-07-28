@@ -42,6 +42,10 @@ __email__ = '''<costas.tyf@gmail.com>'''
 __status__ = '''Development'''  # "Prototype", "Development", "Production".
 
 
+class AuthenticationFailed(Exception):
+    """The authentication failed."""
+
+
 class InvalidBudget(Exception):
     """The budget does not exist on YNAB."""
 
