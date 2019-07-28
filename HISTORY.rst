@@ -13,3 +13,9 @@ History
 ------------------
 
 * Initial implementation
+
+
+0.1.1 (28-07-2019)
+------------------
+
+* Made retrieving of objects safe and added some logging
