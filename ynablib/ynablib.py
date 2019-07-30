@@ -66,6 +66,7 @@ class Ynab:
         self.session = self._get_authenticated_session(token)
 
     def _get_authenticated_session(self, token):
+        self._logger.debug('Trying to authenticate with provided token.')
         budget_url = f'{self.api_url}/budgets'
         session = Session()
         headers = {'Authorization': f'Bearer {token}'}
@@ -73,6 +74,7 @@ class Ynab:
         response = session.get(budget_url)
         if not response.ok:
             raise AuthenticationFailed(response.text)
+        self._logger.debug('Successfully authenticated to YNAB.')
         return session
 
     @property
@@ -82,7 +84,9 @@ class Ynab:
             budget_url = f'{self.api_url}/budgets'
             response = self.session.get(budget_url)
             if not response.ok:
-                self._logger.warning('Error retrieving budgets')
+                self._logger.error('Error retrieving budgets, response was : %s with status code : %s',
+                                   response.text,
+                                   response.status_code)
                 return []
             self._budgets = [Budget(self, budget)
                              for budget in response.json().get('data', {}).get('budgets', [])]
@@ -133,9 +137,10 @@ class Ynab:
         transaction_url = f'{self.api_url}/budgets/{budget_id}/transactions'
         response = self.session.post(transaction_url, json={"transactions": payloads})
         if not response.ok:
-            self._logger.error('Unsuccessful attempt to upload to budget "%s", response was %s',
+            self._logger.error('Unsuccessful attempt to upload to budget "%s", response was %s with status code %s',
                                budget_id,
-                               response.text)
+                               response.text,
+                               response.status_code)
         else:
             self._logger.info('Successfully uploaded %s transactions to budget "%s"', len(payloads), budget_id)
         return response.ok
@@ -198,7 +203,9 @@ class Budget:
             url = f'{self._ynab.api_url}/budgets/{self.id}/accounts'
             response = self._ynab.session.get(url)
             if not response.ok:
-                self._logger.warning('Error retrieving accounts')
+                self._logger.error('Error retrieving accounts, response was : %s with status code : %s',
+                                   response.text,
+                                   response.status_code)
                 return []
             self._accounts = [Account(self, account)
                               for account in response.json().get('data', {}).get('accounts', [])]
