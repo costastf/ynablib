@@ -19,3 +19,9 @@ History
 ------------------
 
 * Made retrieving of objects safe and added some logging
+
+
+0.1.2 (30-07-2019)
+------------------
+
+* Extended logging
