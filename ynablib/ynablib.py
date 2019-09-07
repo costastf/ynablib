@@ -228,13 +228,27 @@ class Budget:
         """Cleans up the cached values for accounts."""
         self._accounts = None
 
+    @property
+    def transactions(self):
+        url = f'{self._ynab.api_url}/budgets/{self.id}/transactions'
+        response = self._ynab.session.get(url)
+        if not response.ok:
+            self._logger.error('Error retrieving transactions, response was : %s with status code : %s',
+                               response.text,
+                               response.status_code)
+            return []
+        return [Transaction(self._ynab, transaction)
+                for transaction in response.json().get('data', {}).get('transactions', [])]
+
 
 class Account:
     """Models the account of a YNAB Budget."""
 
     def __init__(self, budget, data):
+        self._logger = logging.getLogger(f'{LOGGER_BASENAME}.{self.__class__.__name__}')
         self._data = data
         self._budget = budget
+        self._ynab = budget._ynab
 
     @property
     def budget(self):
@@ -290,3 +304,97 @@ class Account:
     def type(self):
         """Type."""
         return self._data.get('type')
+
+    @property
+    def transactions(self):
+        url = f'{self._ynab.api_url}/budgets/{self.budget.id}/accounts/{self.id}/transactions'
+        response = self._ynab.session.get(url)
+        if not response.ok:
+            self._logger.error('Error retrieving transactions, response was : %s with status code : %s',
+                               response.text,
+                               response.status_code)
+            return []
+        return [Transaction(self._ynab, transaction)
+                for transaction in response.json().get('data', {}).get('transactions', [])]
+
+
+class Transaction:
+
+    def __init__(self, ynab, data):
+        self._logger = logging.getLogger(f'{LOGGER_BASENAME}.{self.__class__.__name__}')
+        self._ynab = ynab
+        self._data = data
+
+    @property
+    def account(self):
+        # {'account_id': 'a7092606-ff2a-487e-a39f-1fa31c95092a',
+        #  'account_name': 'Abn Amro Credit Card ICS',
+        pass
+
+    @property
+    def amount(self):
+        return self._data.get('amount')
+
+    @property
+    def is_approved(self):
+        return self._data.get('approved')
+
+    @property
+    def category_id(self):  # TODO implement category object here maybe?
+        return self._data.get('category_id')
+
+    @property
+    def category_name(self):
+        return self._data.get('category_name')
+
+    @property
+    def is_cleared(self):
+        return self._data.get('cleared')
+
+    @property
+    def date(self):
+        return self._data.get('date')
+
+    @property
+    def is_deleted(self):
+        return self._data.get('deleted')
+
+    @property
+    def flag_color(self):
+        return self._data.get('flag_color')
+
+    @property
+    def id(self):
+        return self._data.get('id')
+
+    @property
+    def import_id(self):
+        return self._data.get('import_id')
+
+    @property
+    def matched_transaction_id(self):
+        return self._data.get('matched_transaction_id')
+
+    @property
+    def memo(self):
+        return self._data.get('memo')
+
+    @property
+    def payee_id(self):
+        return self._data.get('payee_id')
+
+    @property
+    def payee_name(self):
+        return self._data.get('payee_name')
+
+    @property
+    def subtransactions(self):
+        return self._data.get('subtransactions')
+
+    @property
+    def transfer_account_id(self):
+        return self._data.get('transfer_account_id')
+
+    @property
+    def transfer_transaction_id(self):
+        return self._data.get('transfer_transaction_id')
