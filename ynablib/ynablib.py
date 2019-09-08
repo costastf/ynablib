@@ -224,6 +224,19 @@ class Budget:
         return next((account for account in self.accounts
                      if account.name.lower() == name.lower()), None)
 
+    def get_account_by_id(self, id_):
+        """Retrieves an account by id.
+
+        Args:
+            id_ (str): The id of the account to retrieve
+
+        Returns:
+            account (Account): An account object on success, None otherwise.
+
+        """
+        return next((account for account in self.accounts
+                     if account.id == id_), None)
+
     def refresh(self):
         """Cleans up the cached values for accounts."""
         self._accounts = None
@@ -324,12 +337,23 @@ class Transaction:
         self._logger = logging.getLogger(f'{LOGGER_BASENAME}.{self.__class__.__name__}')
         self._ynab = ynab
         self._data = data
+        self._account = None
 
     @property
     def account(self):
-        # {'account_id': 'a7092606-ff2a-487e-a39f-1fa31c95092a',
-        #  'account_name': 'Abn Amro Credit Card ICS',
-        pass
+        if self._account is None:
+            self._account = next((budget.get_account_by_id(self._data.get('account_id'))
+                                  for budget in self._ynab.budgets),
+                                 None)
+        return self._account
+
+    @property
+    def account_id(self):
+        return self.account.id
+
+    @property
+    def account_name(self):
+        return self.account.name
 
     @property
     def amount(self):
@@ -380,7 +404,7 @@ class Transaction:
         return self._data.get('memo')
 
     @property
-    def payee_id(self):
+    def payee_id(self):  # TODO implement payee object here maybe?
         return self._data.get('payee_id')
 
     @property
@@ -392,7 +416,7 @@ class Transaction:
         return self._data.get('subtransactions')
 
     @property
-    def transfer_account_id(self):
+    def transfer_account_id(self):  # TODO implement transfer object here maybe?
         return self._data.get('transfer_account_id')
 
     @property
