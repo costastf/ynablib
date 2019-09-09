@@ -253,6 +253,18 @@ class Budget:
         return [Transaction(self._ynab, transaction)
                 for transaction in response.json().get('data', {}).get('transactions', [])]
 
+    @property
+    def category_groups(self):
+        url = f'{self._ynab.api_url}/budgets/{self.id}/categories'
+        response = self._ynab.session.get(url)
+        if not response.ok:
+            self._logger.error('Error retrieving category_groups, response was : %s with status code : %s',
+                               response.text,
+                               response.status_code)
+            return []
+        return [CategoryGroup(self._ynab, category_group)
+                for category_group in response.json().get('data', {}).get('category_groups', [])]
+
 
 class Account:
     """Models the account of a YNAB Budget."""
@@ -422,3 +434,104 @@ class Transaction:
     @property
     def transfer_transaction_id(self):
         return self._data.get('transfer_transaction_id')
+
+
+class CategoryGroup:
+
+    def __init__(self, ynab, data):
+        self._logger = logging.getLogger(f'{LOGGER_BASENAME}.{self.__class__.__name__}')
+        self._ynab = ynab
+        self._data = data
+        self._budget = None
+
+    @property
+    def group_id(self):
+        return self._data.get('id')
+
+    @property
+    def name(self):
+        return self._data.get('name')
+
+    @property
+    def hidden(self):
+        return self._data.get('hidden')
+
+    @property
+    def deleted(self):
+        return self._data.get('deleted')
+
+    @property
+    def categories(self):
+        return [Category(self._ynab, category) for category in self._data.get('categories')]
+
+
+class Category:
+
+    def __init__(self, ynab, data):
+        self._logger = logging.getLogger(f'{LOGGER_BASENAME}.{self.__class__.__name__}')
+        self._ynab = ynab
+        self._data = data
+        self._category_group = None
+
+    @property
+    def category_id(self):
+        return self._data.get('id')
+
+    @property
+    def group_id(self):
+        return self._data.get('category_group_id')
+
+    @property
+    def name(self):
+        return self._data.get('name')
+
+    @property
+    def category_hidden(self):
+        return self._data.get('hidden')
+
+    @property
+    def category_group_id(self):
+        return self._data.get('original_category_group_id')
+
+    @property
+    def category_note(self):
+        return self._data.get('note')
+
+    @property
+    def budgeted_amount(self):
+        return self._data.get('budgeted')
+
+    @property
+    def activity_amount(self):
+        return self._data.get('activity')
+
+    @property
+    def balance(self):
+        return self._data.get('balance')
+
+    @property
+    def goal_type(self):
+        return self._data.get('goal_type')
+
+    @property
+    def goal_creation_month(self):
+        return self._data.get('goal_creation_month')
+
+    @property
+    def goal_target(self):
+        return self._data.get('goal_target')
+
+    @property
+    def goal_target_month(self):
+        return self._data.get('goal_target_month')
+
+    @property
+    def goal_percentage_complete(self):
+        return self._data.get('goal_percentage_complete')
+
+    @property
+    def category_deleted(self):
+        return self._data.get('deleted')
+
+
+
