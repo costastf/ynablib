@@ -25,3 +25,9 @@ History
 ------------------
 
 * Extended logging
+
+
+0.2.0 (13-09-2019)
+------------------
+
+* Added transaction objects under budgets and accounts
