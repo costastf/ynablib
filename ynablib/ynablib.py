@@ -243,6 +243,12 @@ class Budget:
 
     @property
     def transactions(self):
+        """The transactions of the account.
+
+        Returns:
+            transactions (list): List of transactions.
+
+        """
         url = f'{self._ynab.api_url}/budgets/{self.id}/transactions'
         response = self._ynab.session.get(url)
         if not response.ok:
@@ -320,6 +326,12 @@ class Account:
 
     @property
     def transactions(self):
+        """The transactions of the account.
+
+        Returns:
+            transactions (list): List of transactions.
+
+        """
         url = f'{self._ynab.api_url}/budgets/{self.budget.id}/accounts/{self.id}/transactions'
         response = self._ynab.session.get(url)
         if not response.ok:
@@ -332,6 +344,7 @@ class Account:
 
 
 class Transaction:
+    """Models the transaction."""
 
     def __init__(self, ynab, data):
         self._logger = logging.getLogger(f'{LOGGER_BASENAME}.{self.__class__.__name__}')
@@ -341,6 +354,7 @@ class Transaction:
 
     @property
     def account(self):
+        """Account."""
         if self._account is None:
             self._account = next((budget.get_account_by_id(self._data.get('account_id'))
                                   for budget in self._ynab.budgets),
@@ -349,76 +363,95 @@ class Transaction:
 
     @property
     def account_id(self):
+        """Account ID."""
         return self.account.id
 
     @property
     def account_name(self):
+        """Account name."""
         return self.account.name
 
     @property
     def amount(self):
+        """Amount."""
         return self._data.get('amount')
 
     @property
     def is_approved(self):
+        """Is approved."""
         return self._data.get('approved')
 
     @property
-    def category_id(self):  # TODO implement category object here maybe?
+    def category_id(self):  # TODO implement category object here maybe? pylint: disable=fixme
+        """Category ID."""
         return self._data.get('category_id')
 
     @property
     def category_name(self):
+        """Category name."""
         return self._data.get('category_name')
 
     @property
     def is_cleared(self):
+        """Is cleared."""
         return self._data.get('cleared')
 
     @property
     def date(self):
+        """Date."""
         return self._data.get('date')
 
     @property
     def is_deleted(self):
+        """Is deleted."""
         return self._data.get('deleted')
 
     @property
     def flag_color(self):
+        """Flag color."""
         return self._data.get('flag_color')
 
     @property
-    def id(self):
+    def id(self):  # pylint: disable=invalid-name
+        """ID."""
         return self._data.get('id')
 
     @property
     def import_id(self):
+        """Import ID."""
         return self._data.get('import_id')
 
     @property
     def matched_transaction_id(self):
+        """Matched transaction ID."""
         return self._data.get('matched_transaction_id')
 
     @property
     def memo(self):
+        """Memo."""
         return self._data.get('memo')
 
     @property
-    def payee_id(self):  # TODO implement payee object here maybe?
+    def payee_id(self):  # TODO implement payee object here maybe? pylint: disable=fixme
+        """Payee ID."""
         return self._data.get('payee_id')
 
     @property
     def payee_name(self):
+        """Payee name."""
         return self._data.get('payee_name')
 
     @property
     def subtransactions(self):
+        """Sub transactions."""
         return self._data.get('subtransactions')
 
     @property
-    def transfer_account_id(self):  # TODO implement transfer object here maybe?
+    def transfer_account_id(self):  # TODO implement transfer object here maybe?  pylint: disable=fixme
+        """Transfer Account ID."""
         return self._data.get('transfer_account_id')
 
     @property
     def transfer_transaction_id(self):
+        """Transfer Transaction ID."""
         return self._data.get('transfer_transaction_id')
