@@ -31,3 +31,9 @@ History
 ------------------
 
 * Added transaction objects under budgets and accounts
+
+
+0.2.1 (06-07-2021)
+------------------
+
+* Linted and bumped dependencies.
